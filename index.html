@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f4c81" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Paed UTI NG224" />
+  <meta name="description" content="Point-of-care urine dipstick and testing decision support tool for children under 16 based on NICE Guideline NG224." />
+  <title>Paediatric UTI Dipstick & Testing Tool (NICE NG224)</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="apple-touch-icon" href="./icons/icon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="title-row">
+        <div>
+          <span class="badge-pill">NICE NG224 • Diagnostic Stewardship</span>
+          <h1>Paediatric UTI Dipstick &amp; Testing Tool</h1>
+          <p class="subtitle">Age-stratified urine testing rules for infants, children &amp; young people (&lt;16 years)</p>
+        </div>
+        <button type="button" id="resetBtn" class="btn-ghost" aria-label="Reset inputs">Reset</button>
+      </div>
+      <nav class="tab-bar" role="tablist" aria-label="App sections">
+        <button type="button" class="tab-btn active" data-tab="tool" role="tab" aria-selected="true">Decision Tool</button>
+        <button type="button" class="tab-btn" data-tab="symptoms" role="tab" aria-selected="false">Table 1: Signs</button>
+        <button type="button" class="tab-btn" data-tab="collection" role="tab" aria-selected="false">Collection</button>
+        <button type="button" class="tab-btn" data-tab="tables" role="tab" aria-selected="false">Tables 2 &amp; 3</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- TAB 1: DECISION TOOL -->
+    <section id="tab-tool" class="tab-panel active" role="tabpanel">
+      <!-- Scope / Exclusion Check -->
+      <div class="card scope-card">
+        <div class="card-header-row">
+          <h2>1. Guideline Scope Check</h2>
+          <span class="rec-tag">NG224 Overview</span>
+        </div>
+        <label class="checkbox-row warning-toggle">
+          <input type="checkbox" id="outOfScopeCheck" />
+          <span><strong>Exclusion applies:</strong> Urinary catheter in situ, neurogenic bladder, significant pre-existing uropathy, underlying renal disease, immunosuppression, ICU admission, or recurrent UTI in a sexually active girl/young woman &lt;16y.</span>
+        </label>
+        <div id="scopeAlert" class="alert-box alert-amber hidden">
+          <strong>Outside NICE NG224 Scope:</strong> This guideline does not cover these groups. Follow specialist paediatric/urology/ICU protocols and local microbiology guidance.
+        </div>
+      </div>
+
+      <!-- Age Input -->
+      <div class="card">
+        <div class="card-header-row">
+          <h2>2. Child's Age</h2>
+          <span id="ageBracketBadge" class="bracket-badge">Enter age</span>
+        </div>
+        <div class="age-input-grid">
+          <div class="input-group">
+            <label for="ageValue">Age Value</label>
+            <input type="number" id="ageValue" min="0" step="1" inputmode="numeric" placeholder="e.g. 18" />
+          </div>
+          <div class="input-group">
+            <label for="ageUnit">Unit</label>
+            <select id="ageUnit">
+              <option value="days">Days</option>
+              <option value="weeks">Weeks</option>
+              <option value="months" selected>Months</option>
+              <option value="years">Years</option>
+            </select>
+          </div>
+        </div>
+        <div class="preset-row" aria-label="Quick age brackets">
+          <button type="button" class="preset-chip" data-val="20" data-unit="days">&le;28d (Neonate)</button>
+          <button type="button" class="preset-chip" data-val="2" data-unit="months">&lt;3 months</button>
+          <button type="button" class="preset-chip" data-val="14" data-unit="months">3m to &lt;3y</button>
+          <button type="button" class="preset-chip" data-val="6" data-unit="years">&ge;3 years</button>
+        </div>
+      </div>
+
+      <!-- Dipstick & Clinical Modifiers (Shown for >= 3 months and < 16 years) -->
+      <div id="dipstickCard" class="card hidden">
+        <div class="card-header-row">
+          <h2>3. Urine Dipstick Result</h2>
+          <span id="dipstickRecTag" class="rec-tag">Rec 1.1.19</span>
+        </div>
+        <div class="dipstick-grid">
+          <div class="dipstick-col">
+            <span class="field-label">Leukocyte Esterase (LE)</span>
+            <div class="segmented" role="group" aria-label="Leukocyte Esterase result">
+              <button type="button" class="seg-btn active" data-field="le" data-val="neg">Negative</button>
+              <button type="button" class="seg-btn" data-field="le" data-val="pos">Positive</button>
+            </div>
+          </div>
+          <div class="dipstick-col">
+            <span class="field-label">Nitrite</span>
+            <div class="segmented" role="group" aria-label="Nitrite result">
+              <button type="button" class="seg-btn active" data-field="nitrite" data-val="neg">Negative</button>
+              <button type="button" class="seg-btn" data-field="nitrite" data-val="pos">Positive</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditional Modifiers for >= 3 years (Table 2) -->
+        <div id="table2Modifiers" class="modifier-block hidden">
+          <div id="freshSampleRow" class="hidden">
+            <label class="checkbox-row">
+              <input type="checkbox" id="freshSampleCheck" checked />
+              <span><strong>Fresh urine sample:</strong> Dipstick tested on a fresh urine specimen (required for LE&minus; / Nitrite+ empirical treatment in &ge;3y).</span>
+            </label>
+          </div>
+          <div id="goodClinicalRow" class="hidden">
+            <label class="checkbox-row">
+              <input type="checkbox" id="goodClinicalCheck" />
+              <span><strong>Good clinical evidence of UTI:</strong> Obvious urinary symptoms present (e.g. dysuria/frequency) supporting empirical antibiotics despite Nitrite&minus;.</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Recommendation 1.1.21 Culture Triggers -->
+        <div class="culture-triggers">
+          <h3>4. Mandatory Culture Triggers <span class="rec-inline">(Rec 1.1.21)</span></h3>
+          <p class="hint-text">Tick any that apply (mandates sending urine for microscopy &amp; culture even if dipstick would not otherwise require it):</p>
+          <label class="checkbox-row">
+            <input type="checkbox" class="culture-trigger" value="Suspected acute upper UTI (pyelonephritis: fever &ge;38&deg;C or loin pain/tenderness)" />
+            <span>Suspected acute upper UTI / pyelonephritis (fever &ge;38&deg;C or loin pain/tenderness)</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" class="culture-trigger" value="High or intermediate risk of serious illness (NICE NG143 traffic light)" />
+            <span>High or intermediate risk of serious illness (NICE Fever in Under 5s)</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" class="culture-trigger" value="Recurrent UTI" />
+            <span>Recurrent UTI</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" class="culture-trigger" value="Infection not responding to treatment within 24–48 hours (no prior sample)" />
+            <span>Not responding to treatment within 24–48 hours (no prior sample sent)</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" class="culture-trigger" value="Clinical symptoms and signs do not correlate with dipstick result" />
+            <span>Clinical symptoms &amp; signs do not correlate with dipstick result (Rec 1.1.21 / 1.1.23)</span>
+          </label>
+          <label id="prevUtiRow" class="checkbox-row hidden">
+            <input type="checkbox" class="culture-trigger" value="History of previous UTI (Table 2 culture indication for LE+/Nitrite+ in >=3y)" />
+            <span>History of previous confirmed UTI (Table 2 culture trigger in &ge;3y)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Dynamic Verdict Card -->
+      <div id="verdictCard" class="verdict-card verdict-neutral" aria-live="polite">
+        <div class="verdict-top">
+          <span id="verdictSeverity" class="verdict-pill">AWAITING INPUT</span>
+          <span id="verdictCitations" class="verdict-cite">NICE NG224</span>
+        </div>
+        <h2 id="verdictTitle">Enter the child's age above to view NG224 testing rules</h2>
+        <p id="verdictSummary" class="verdict-summary">Select days, weeks, months, or years, or tap a quick age bracket preset.</p>
+        <ul id="verdictActions" class="action-list"></ul>
+        <div id="verdictNotePreview" class="note-preview hidden"></div>
+        <div class="verdict-footer">
+          <button type="button" id="copyNoteBtn" class="btn-primary" disabled>Copy Clinical Note</button>
+          <span id="copyFeedback" class="copy-feedback" role="status"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TABLE 1 SYMPTOMS & SIGNS -->
+    <section id="tab-symptoms" class="tab-panel hidden" role="tabpanel">
+      <div class="card">
+        <h2>Table 1: Symptoms &amp; Signs (NICE NG224, 2022)</h2>
+        <p class="hint-text">Use alongside clinical judgement to decide whether urine collection and testing is necessary (Recs 1.1.1–1.1.4). Do not routinely test urine in children &ge;3 months with clear signs of an alternative infection unless they remain unwell with diagnostic uncertainty.</p>
+        <div class="two-col-grid">
+          <div class="info-box box-green">
+            <h3>Increases Likelihood of UTI</h3>
+            <ul>
+              <li>Painful urination (dysuria)</li>
+              <li>More frequent urination</li>
+              <li>New bedwetting</li>
+              <li>Foul-smelling (malodorous) urine</li>
+              <li>Darker urine</li>
+              <li>Cloudy urine</li>
+              <li>Frank haematuria (visible blood)</li>
+              <li>Reduced fluid intake</li>
+              <li>Fever</li>
+              <li>Shivering</li>
+              <li>Abdominal pain</li>
+              <li>Loin or suprapubic tenderness</li>
+              <li>Capillary refill &gt;3 seconds</li>
+              <li>Previous confirmed UTI</li>
+            </ul>
+          </div>
+          <div class="info-box box-amber">
+            <h3>Decreases Likelihood of UTI</h3>
+            <ul>
+              <li>Absence of painful urination (dysuria)</li>
+              <li>Nappy rash</li>
+              <li>Breathing difficulties</li>
+              <li>Abnormal chest sounds</li>
+              <li>Abnormal ear examination</li>
+              <li>Fever with known alternative cause</li>
+            </ul>
+            <div class="sub-note">
+              <strong>Upper vs Lower UTI (Recs 1.1.25–1.1.27):</strong><br />
+              • <strong>Acute upper UTI (pyelonephritis):</strong> Bacteriuria + fever &ge;38&deg;C, OR bacteriuria + fever &lt;38&deg;C with loin pain/tenderness.<br />
+              • <strong>Lower UTI (cystitis):</strong> Bacteriuria with no systemic symptoms/signs.<br />
+              • Do <strong>not</strong> use CRP alone to differentiate upper from lower UTI.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: COLLECTION & PRESERVATION -->
+    <section id="tab-collection" class="tab-panel hidden" role="tabpanel">
+      <div class="card">
+        <h2>Urine Collection &amp; Preservation (Recs 1.1.11–1.1.18)</h2>
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Sample Before Antibiotics (Recs 1.1.11–1.1.12)</strong>
+              <p>Obtain urine before giving antibiotics. In high risk of serious illness, do not delay treatment if a sample cannot be obtained.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Preferred Non-Invasive Collection (Recs 1.1.13–1.1.14)</strong>
+              <p>Use <strong>clean catch</strong> wherever possible. If not possible, use manufacturer-approved <strong>urine collection pads</strong>.</p>
+            </div>
+          </div>
+          <div class="step-item danger-step">
+            <span class="step-num">!</span>
+            <div>
+              <strong>Prohibited Collection Materials (Rec 1.1.15)</strong>
+              <p><strong>Do NOT use cotton wool balls, gauze, or sanitary towels</strong> to collect urine from babies and children.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Invasive Sampling (Rec 1.1.16)</strong>
+              <p>Use catheter samples or ultrasound-guided suprapubic aspiration (SPA) when non-invasive collection is not possible or practical.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">4</span>
+            <div>
+              <strong>Preservation &amp; Boric Acid Fill-Line Rule (Recs 1.1.17–1.1.18)</strong>
+              <p>If culture cannot occur within <strong>4 hours</strong>, refrigerate immediately or use <strong>boric acid</strong>. Follow manufacturer fill-line instructions strictly—underfilling causes toxic boric acid concentrations that kill uropathogens (false negative).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: TABLES 2 & 3 -->
+    <section id="tab-tables" class="tab-panel hidden" role="tabpanel">
+      <div class="card">
+        <h2>Table 2: Dipstick Strategy for Children &ge;3 Years (Rec 1.1.20)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dipstick Result</th>
+                <th>NICE NG224 Strategy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>LE +</strong> and <strong>Nitrite +</strong></td>
+                <td>Assume UTI and give antibiotics. Send urine for culture if high/intermediate risk of serious illness or history of previous UTI.</td>
+              </tr>
+              <tr>
+                <td><strong>LE &minus;</strong> and <strong>Nitrite +</strong></td>
+                <td>Give antibiotics if tested on a <strong>fresh urine sample</strong>. Send urine for culture; adjust management on culture result.</td>
+              </tr>
+              <tr>
+                <td><strong>LE +</strong> and <strong>Nitrite &minus;</strong></td>
+                <td>Send urine for microscopy &amp; culture. Do <strong>not</strong> give antibiotics unless good clinical evidence of UTI (e.g. obvious urinary symptoms). Consider extra-urinary infection.</td>
+              </tr>
+              <tr>
+                <td><strong>LE &minus;</strong> and <strong>Nitrite &minus;</strong></td>
+                <td>Assume no UTI. Do <strong>not</strong> give UTI antibiotics or send culture (unless Rec 1.1.21 applies). Explore other causes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Table 3: Interpreting Microscopy Results (Rec 1.1.22)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Microscopy Finding</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Pyuria +</strong> and <strong>Bacteriuria +</strong></td>
+                <td>Assume the baby or child has a UTI.</td>
+              </tr>
+              <tr>
+                <td><strong>Pyuria +</strong> and <strong>Bacteriuria &minus;</strong></td>
+                <td>Start antibiotic treatment if the baby or child has symptoms or signs of a UTI.</td>
+              </tr>
+              <tr>
+                <td><strong>Pyuria &minus;</strong> and <strong>Bacteriuria +</strong></td>
+                <td>Assume the baby or child has a UTI.</td>
+              </tr>
+              <tr>
+                <td><strong>Pyuria &minus;</strong> and <strong>Bacteriuria &minus;</strong></td>
+                <td>Assume the baby or child does not have a UTI (unless clinical criteria strongly suggest false negative, Rec 1.1.23).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Clinical Decision Support aligned with <strong>NICE Guideline NG224</strong> (<em>Urinary tract infection in under 16s: diagnosis and management</em>, July 2022, updated Nov 2025). Offline-capable PWA • Zero patient data transmitted or stored.</p>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

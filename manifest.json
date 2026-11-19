@@ -1,0 +1,20 @@
+{
+  "name": "Paediatric UTI Dipstick & Testing Tool (NICE NG224)",
+  "short_name": "Paed UTI NG224",
+  "description": "Offline-capable diagnostic stewardship decision support tool for urine dipstick testing and culture indications in children under 16 based on NICE Guideline NG224.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f4c81",
+  "categories": ["medical", "health", "education"],
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
